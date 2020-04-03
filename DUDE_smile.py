@@ -22,9 +22,9 @@ for folder in os.listdir(path):
 
             try:
                 if file.endswith("actives_final.ism"):
-                    df = pd.read_csv(file_path, sep=' ',dtype={"smile":str, "num":str,"ID":str})
+                    df = pd.read_csv(file_path, sep=' ',names=["smile","num","ID"])
                 elif file.endswith("decoys_final.ism"):
-                    df = pd.read_csv(file_path, sep=' ', dtype={"smile": str, "ID": str})
+                    df = pd.read_csv(file_path, sep=' ', names=["smile","ID"])
                 else:
                     continue
 
@@ -33,23 +33,30 @@ for folder in os.listdir(path):
                 id_arr = id_arr + df["ID"].tolist()
 
             except Exception as e:
-                print(e)
+                print("Error!",e)
+                exit()
 
 
 data = {"smile":smile_arr,"name": id_arr}
 df_out = pd.DataFrame(data)
 print("df raw:",df_out.info())
 df_out.to_csv("DUDE_RAW_SMILE.csv",index=False)
+print("---------------------------")
+
 
 df_out=df_out.drop_duplicates("smile")
 print("df unique smile:",df_out.info())
 df_out.to_csv("DUDE_UNIQUE_SMILE.csv", index=False)
+print("---------------------------")
 
 drug=df_out["smile"]
 canonical_smiles = [pybel.readstring("smi", smile).write("can").rstrip() for smile in drug]
 data = {"canonical_smile":canonical_smiles,"ID": df_out['name']}
 df_out = pd.DataFrame(data)
 print("df canonical smile:",df_out.info())
+print("---------------------------")
+
 df_out=df_out.drop_duplicates("canonical_smile")
 print("df unique canonical smile:",df_out.info())
 df_out.to_csv("DUDE_UNIQUE_canonical.csv", index=False)
+print("---------------------------")
